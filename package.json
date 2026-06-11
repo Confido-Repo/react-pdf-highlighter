@@ -1,18 +1,27 @@
 {
   "name": "react-pdf-highlighter",
-  "version": "7.0.0",
-  "description": "Set of React components for PDF annotation",
+  "version": "7.1.0",
+  "description": "Set of React components for PDF annotation (Confido fork: pdfjs-dist 6.x support, rotated-page highlight fix)",
   "author": "Artem Tyurin <artem.tyurin@gmail.com>",
   "license": "MIT",
-  "keywords": ["pdf", "highlight", "annotator", "react-component"],
-  "files": ["dist", "README.md", "LICENSE"],
+  "keywords": [
+    "pdf",
+    "highlight",
+    "annotator",
+    "react-component"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "type": "module",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
   "scripts": {
     "start": "npm run dev",
     "dev": "(cd ./example && vite)",
-    "build": "npm run clean && npm run build:esm && npm run build:copy-styles && npm run build:example",
+    "build": "npm run clean && npm run build:esm && npm run build:copy-styles",
     "build:esm": "tsc",
     "build:copy-styles": "cp -r ./src/style ./dist",
     "build:example": "(cd ./example && tsc && vite build)",
@@ -23,30 +32,31 @@
     "clean": "rm -rf dist"
   },
   "peerDependencies": {
+    "pdfjs-dist": "^6.0.0",
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0"
   },
   "dependencies": {
     "debounce": "^2.1.0",
-    "pdfjs-dist": "^4.4.168",
     "react-rnd": "^10.4.11"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/agentcooper/react-pdf-highlighter.git"
+    "url": "git+https://github.com/Confido-Repo/react-pdf-highlighter.git"
   },
   "bugs": {
-    "url": "https://github.com/agentcooper/react-pdf-highlighter/issues"
+    "url": "https://github.com/Confido-Repo/react-pdf-highlighter/issues"
   },
   "devDependencies": {
     "@biomejs/biome": "1.8.3",
     "@playwright/test": "^1.45.1",
-    "@types/node": "^20.14.10",
+    "@types/node": "^22.19.21",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "pdfjs-dist": "6.0.227",
     "playwright": "^1.45.1",
-    "typescript": "^5.5.3",
+    "typescript": "^5.9.3",
     "vite": "^5.3.3"
   }
 }

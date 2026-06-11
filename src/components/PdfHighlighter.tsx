@@ -198,16 +198,19 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   }
 
   findOrCreateHighlightLayer(page: number) {
-    const { textLayer } = this.viewer.getPageView(page - 1) || {};
+    // Confido fork: attach the highlight layer to the page div rather than
+    // textLayer.div. On pdfjs >= 4, pages with /Rotate metadata render the
+    // text layer sized to the un-rotated page and spun into place with a CSS
+    // transform; highlights are computed in rotated-viewport coordinates, so
+    // nesting them inside the rotated text layer double-rotates them. The
+    // page div is the un-rotated, display-sized container the canvas uses.
+    const { textLayer, div } = this.viewer.getPageView(page - 1) || {};
 
-    if (!textLayer) {
+    if (!textLayer || !div) {
       return null;
     }
 
-    return findOrCreateContainerLayer(
-      textLayer.div,
-      "PdfHighlighter__highlight-layer",
-    );
+    return findOrCreateContainerLayer(div, "PdfHighlighter__highlight-layer");
   }
 
   groupHighlightsByPage(highlights: Array<T_HT>): {

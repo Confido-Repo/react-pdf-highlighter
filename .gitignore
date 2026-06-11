@@ -1,6 +1,8 @@
 node_modules
 .DS_Store
-dist
+# dist is committed in this fork so the package can be consumed as a git
+# dependency without running install-time build scripts.
+# dist
 *.local
 types
 /test-results/

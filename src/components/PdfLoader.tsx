@@ -4,8 +4,13 @@ import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 
 interface Props {
-  /** See `GlobalWorkerOptionsType`. */
-  workerSrc: string;
+  /**
+   * URL for the pdf.js worker, applied to `GlobalWorkerOptions.workerSrc`.
+   * Confido fork: no CDN default — the worker must be supplied by the host
+   * application (e.g. a bundled asset URL) so it always matches the installed
+   * pdfjs-dist version and avoids an external runtime dependency.
+   */
+  workerSrc?: string;
 
   url: string;
   beforeLoad: JSX.Element;
@@ -27,10 +32,6 @@ export class PdfLoader extends Component<Props, State> {
     error: null,
   };
 
-  static defaultProps = {
-    workerSrc: "https://unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs",
-  };
-
   documentRef = React.createRef<HTMLElement>();
 
   componentDidMount() {
@@ -40,7 +41,9 @@ export class PdfLoader extends Component<Props, State> {
   componentWillUnmount() {
     const { pdfDocument: discardedDocument } = this.state;
     if (discardedDocument) {
-      discardedDocument.destroy();
+      // pdfjs >= 6 removed PDFDocumentProxy.destroy(); the loading task owns
+      // worker/network teardown.
+      discardedDocument.loadingTask.destroy();
     }
   }
 
@@ -71,7 +74,7 @@ export class PdfLoader extends Component<Props, State> {
     }
 
     Promise.resolve()
-      .then(() => discardedDocument?.destroy())
+      .then(() => discardedDocument?.loadingTask.destroy())
       .then(() => {
         if (!url) {
           return;
