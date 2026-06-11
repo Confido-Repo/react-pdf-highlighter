@@ -12,6 +12,13 @@ interface Props {
    */
   workerSrc?: string;
 
+  /**
+   * Directory URL pdf.js fetches its WebAssembly decoders from (CCITT/JBIG2/
+   * JPX images, ICC color profiles); pdf.js appends fixed filenames to it.
+   * Forwarded to `getDocument` along with the rest of these props.
+   */
+  wasmUrl?: string;
+
   url: string;
   beforeLoad: JSX.Element;
   errorMessage?: JSX.Element;

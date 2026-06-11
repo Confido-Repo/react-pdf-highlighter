@@ -12,6 +12,12 @@
   /* Confido fork: the layer is appended to the page div after the canvas, so
      without an explicit top it lands at the canvas height in static flow. */
   top: 0;
+  /* Confido fork: blend the layer with the page content beneath it. Upstream
+     attached this layer inside pdf.js's text layer, whose own
+     `mix-blend-mode: multiply` (see pdf_viewer.css override) made highlights
+     translucent; the layer now sits on the page div (rotation fix), so it
+     needs the same group blending or highlights paint solid over the text. */
+  mix-blend-mode: multiply;
 }
 
 .PdfHighlighter__tip-container {
