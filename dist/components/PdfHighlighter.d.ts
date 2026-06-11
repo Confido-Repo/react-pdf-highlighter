@@ -47,6 +47,19 @@ export declare class PdfHighlighter<T_HT extends IHighlight> extends PureCompone
     };
     state: State<T_HT>;
     viewer: PDFViewer;
+    /**
+     * Confido fork: one EventBus per component instance, created on first
+     * init() and reused for its lifetime. init() runs again whenever the
+     * pdfDocument prop changes (and React StrictMode remounts make that
+     * routine in development); upstream created a fresh bus each time while
+     * the viewer kept dispatching on the first one, so the re-subscribed
+     * handlers — including the one that renders highlight layers after
+     * `textlayerrendered` — never fired again until something else forced a
+     * re-render. Symptom: no highlights on first load.
+     */
+    eventBus?: EventBus;
+    /** Confido fork: lets the async init() bail after unmount (StrictMode). */
+    unmounted: boolean;
     resizeObserver: ResizeObserver | null;
     containerNode?: HTMLDivElement | null;
     containerNodeRef: RefObject<HTMLDivElement>;

@@ -28,6 +28,19 @@ export class PdfHighlighter extends PureComponent {
         tipChildren: null,
     };
     viewer;
+    /**
+     * Confido fork: one EventBus per component instance, created on first
+     * init() and reused for its lifetime. init() runs again whenever the
+     * pdfDocument prop changes (and React StrictMode remounts make that
+     * routine in development); upstream created a fresh bus each time while
+     * the viewer kept dispatching on the first one, so the re-subscribed
+     * handlers — including the one that renders highlight layers after
+     * `textlayerrendered` — never fired again until something else forced a
+     * re-render. Symptom: no highlights on first load.
+     */
+    eventBus;
+    /** Confido fork: lets the async init() bail after unmount (StrictMode). */
+    unmounted = false;
     resizeObserver = null;
     containerNode = null;
     containerNodeRef;
@@ -41,6 +54,7 @@ export class PdfHighlighter extends PureComponent {
         this.containerNodeRef = React.createRef();
     }
     componentDidMount() {
+        this.unmounted = false;
         this.init();
     }
     attachRef = (eventBus) => {
@@ -79,7 +93,10 @@ export class PdfHighlighter extends PureComponent {
     async init() {
         const { pdfDocument } = this.props;
         const pdfjs = await import("pdfjs-dist/web/pdf_viewer.mjs");
-        const eventBus = new pdfjs.EventBus();
+        if (this.unmounted) {
+            return;
+        }
+        const eventBus = (this.eventBus ??= new pdfjs.EventBus());
         const linkService = new pdfjs.PDFLinkService({
             eventBus,
             externalLinkTarget: 2,
@@ -103,6 +120,7 @@ export class PdfHighlighter extends PureComponent {
         this.attachRef(eventBus);
     }
     componentWillUnmount() {
+        this.unmounted = true;
         this.unsubscribe();
     }
     findOrCreateHighlightLayer(page) {
