@@ -1,5 +1,16 @@
 /* overrides for pdf_viewer.css from PDF.JS web viewer */
 
+/* Confido fork: pdf.js's pdf_viewer.css declares
+   `:root { color-scheme: light dark; }` — appropriate for its standalone
+   viewer app, but when embedded it opts the entire HOST page into dark
+   rendering, flipping native scrollbars to their dark style on dark-mode
+   OSes. Reset to the default so the host application's own declaration
+   (or the browser default) applies. This file is imported immediately
+   after pdf.js's stylesheet, so this reliably wins the tie. */
+:root {
+  color-scheme: normal;
+}
+
 .textLayer {
   z-index: 2;
   opacity: 1;
