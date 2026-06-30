@@ -14,10 +14,17 @@
 }
 
 .Highlight__part {
-  cursor: pointer;
   position: absolute;
   background: rgba(255, 226, 143, 1);
   transition: background 0.3s;
+  /* Confido fork (CS-2396): the highlight layer paints above pdf.js's text
+     layer (z-index 3 vs 2), so these rects were the topmost hit-test target
+     and intercepted drag selection, blocking copy of the text underneath.
+     Let the mouse fall through to the text layer so highlighted text stays
+     selectable/copyable. Scoped to text highlights only — AreaHighlight
+     (.AreaHighlight__part) keeps its pointer interactions. Text highlights
+     are consequently non-interactive (no hover/click), which is intended. */
+  pointer-events: none;
 }
 
 .Highlight__popup {

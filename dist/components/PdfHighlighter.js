@@ -110,7 +110,13 @@ export class PdfHighlighter extends PureComponent {
                     container: this.containerNodeRef.current,
                     eventBus: eventBus,
                     // enhanceTextSelection: true, // deprecated. https://github.com/mozilla/pdf.js/issues/9943#issuecomment-409369485
-                    textLayerMode: 2,
+                    // CS-2396: TextLayerMode.ENABLE (1), not ENABLE_PERMISSIONS (2). Under
+                    // ENABLE_PERMISSIONS pdf.js's text-layer copy handler cancels the native
+                    // copy and only writes clipboard data when permissions are *disabled*, so
+                    // mode 2 silently breaks Cmd/Ctrl+C for every document. With ENABLE,
+                    // copy works, and pdf.js still auto-upgrades to ENABLE_PERMISSIONS for
+                    // documents whose flags actually forbid copying.
+                    textLayerMode: 1,
                     removePageBorders: true,
                     linkService: linkService,
                 });
@@ -366,7 +372,7 @@ export class PdfHighlighter extends PureComponent {
     render() {
         const { onSelectionFinished, enableAreaSelection } = this.props;
         return (React.createElement("div", { onPointerDown: this.onMouseDown },
-            React.createElement("div", { ref: this.containerNodeRef, className: "PdfHighlighter", onContextMenu: (e) => e.preventDefault() },
+            React.createElement("div", { ref: this.containerNodeRef, className: "PdfHighlighter" },
                 React.createElement("div", { className: "pdfViewer" }),
                 this.renderTip(),
                 typeof enableAreaSelection === "function" ? (React.createElement(MouseSelection, { onDragStart: () => this.toggleTextSelection(true), onDragEnd: () => this.toggleTextSelection(false), onChange: (isVisible) => this.setState({ isAreaSelectionInProgress: isVisible }), shouldStart: (event) => enableAreaSelection(event) &&

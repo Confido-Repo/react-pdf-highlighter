@@ -21,6 +21,9 @@ import { Spinner } from "./Spinner";
 import { testHighlights as _testHighlights } from "./test-highlights";
 
 import "./style/App.css";
+// This fork has no CDN worker default, so the host must supply one. Vite serves
+// the bundled worker via `?url`, keeping it matched to the installed pdfjs-dist.
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
 const testHighlights: Record<string, Array<IHighlight>> = _testHighlights;
 
@@ -159,7 +162,11 @@ class App extends Component<{}, State> {
             position: "relative",
           }}
         >
-          <PdfLoader url={url} beforeLoad={<Spinner />}>
+          <PdfLoader
+            url={url}
+            workerSrc={pdfWorkerUrl}
+            beforeLoad={<Spinner />}
+          >
             {(pdfDocument) => (
               <PdfHighlighter
                 pdfDocument={pdfDocument}
