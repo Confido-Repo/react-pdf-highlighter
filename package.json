@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "debounce": "^2.1.0",
-    "react-rnd": "^10.4.11"
+    "react-rnd": "^10.5.3"
   },
   "repository": {
     "type": "git",
