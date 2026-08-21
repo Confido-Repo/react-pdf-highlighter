@@ -48,7 +48,7 @@
     "url": "https://github.com/Confido-Repo/react-pdf-highlighter/issues"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.2",
+    "@biomejs/biome": "2.5.9",
     "@playwright/test": "^1.61.1",
     "@types/node": "^26.1.0",
     "@types/react": "^19.2.17",
