@@ -107,11 +107,17 @@ export class PdfLoader extends Component<Props, State> {
     return (
       <>
         <span ref={this.documentRef} />
-        {error
-          ? this.renderError()
-          : !pdfDocument || !children
-            ? beforeLoad
-            : children(pdfDocument)}
+        {error ? (
+          this.renderError()
+        ) : !pdfDocument || !children ? (
+          beforeLoad
+        ) : (
+          // Confido fork: a fresh child per document. A reused PdfHighlighter
+          // swaps its viewer's document, which re-enables pdf.js's editor.
+          <React.Fragment key={pdfDocument.loadingTask.docId}>
+            {children(pdfDocument)}
+          </React.Fragment>
+        )}
       </>
     );
   }

@@ -1,7 +1,7 @@
 import "pdfjs-dist/web/pdf_viewer.css";
 import "../style/pdf_viewer.css";
 import "../style/PdfHighlighter.css";
-import type { PDFDocumentProxy } from "pdfjs-dist";
+import { type PDFDocumentProxy } from "pdfjs-dist";
 import type { EventBus, PDFViewer } from "pdfjs-dist/legacy/web/pdf_viewer.mjs";
 import React, { type PointerEventHandler, PureComponent, type RefObject } from "react";
 import { type Root } from "react-dom/client";

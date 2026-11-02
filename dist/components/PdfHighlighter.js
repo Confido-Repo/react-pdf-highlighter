@@ -2,6 +2,7 @@ import "pdfjs-dist/web/pdf_viewer.css";
 import "../style/pdf_viewer.css";
 import "../style/PdfHighlighter.css";
 import debounce from "debounce";
+import { AnnotationEditorType } from "pdfjs-dist";
 import React, { PureComponent, } from "react";
 import { createRoot } from "react-dom/client";
 import { scaledToViewport, viewportToScaled } from "../lib/coordinates";
@@ -93,7 +94,9 @@ export class PdfHighlighter extends PureComponent {
     async init() {
         const { pdfDocument } = this.props;
         const pdfjs = await import("pdfjs-dist/web/pdf_viewer.mjs");
-        if (this.unmounted) {
+        // Confido fork: StrictMode runs init() twice for one document. Setting it
+        // again makes pdf.js reset annotationEditorMode from DISABLE to NONE.
+        if (this.unmounted || this.viewer?.pdfDocument === pdfDocument) {
             return;
         }
         const eventBus = (this.eventBus ??= new pdfjs.EventBus());
@@ -117,6 +120,9 @@ export class PdfHighlighter extends PureComponent {
                     // copy works, and pdf.js still auto-upgrades to ENABLE_PERMISSIONS for
                     // documents whose flags actually forbid copying.
                     textLayerMode: 1,
+                    // Confido fork: no pdf.js editing here. Enabled, its UI manager adds a
+                    // document `dragover` handler that throws until an editor layer exists.
+                    annotationEditorMode: AnnotationEditorType.DISABLE,
                     removePageBorders: true,
                     linkService: linkService,
                 });
@@ -128,6 +134,10 @@ export class PdfHighlighter extends PureComponent {
     componentWillUnmount() {
         this.unmounted = true;
         this.unsubscribe();
+        // Confido fork: detach before PdfLoader destroys the document, or the
+        // viewer's pending page fetches hit a destroyed worker transport.
+        // @ts-expect-error pdf.js accepts null to detach; its types say otherwise.
+        this.viewer?.setDocument(null);
     }
     findOrCreateHighlightLayer(page) {
         // Confido fork: attach the highlight layer to the page div rather than

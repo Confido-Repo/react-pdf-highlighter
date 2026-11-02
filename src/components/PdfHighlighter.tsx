@@ -3,7 +3,7 @@ import "../style/pdf_viewer.css";
 import "../style/PdfHighlighter.css";
 
 import debounce from "debounce";
-import type { PDFDocumentProxy } from "pdfjs-dist";
+import { AnnotationEditorType, type PDFDocumentProxy } from "pdfjs-dist";
 import type { EventBus, PDFViewer } from "pdfjs-dist/legacy/web/pdf_viewer.mjs";
 import React, {
   type PointerEventHandler,
@@ -181,7 +181,9 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     const { pdfDocument } = this.props;
     const pdfjs = await import("pdfjs-dist/web/pdf_viewer.mjs");
 
-    if (this.unmounted) {
+    // Confido fork: StrictMode runs init() twice for one document. Setting it
+    // again makes pdf.js reset annotationEditorMode from DISABLE to NONE.
+    if (this.unmounted || this.viewer?.pdfDocument === pdfDocument) {
       return;
     }
 
@@ -208,6 +210,9 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
         // copy works, and pdf.js still auto-upgrades to ENABLE_PERMISSIONS for
         // documents whose flags actually forbid copying.
         textLayerMode: 1,
+        // Confido fork: no pdf.js editing here. Enabled, its UI manager adds a
+        // document `dragover` handler that throws until an editor layer exists.
+        annotationEditorMode: AnnotationEditorType.DISABLE,
         removePageBorders: true,
         linkService: linkService,
       });
@@ -222,6 +227,10 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   componentWillUnmount() {
     this.unmounted = true;
     this.unsubscribe();
+    // Confido fork: detach before PdfLoader destroys the document, or the
+    // viewer's pending page fetches hit a destroyed worker transport.
+    // @ts-expect-error pdf.js accepts null to detach; its types say otherwise.
+    this.viewer?.setDocument(null);
   }
 
   findOrCreateHighlightLayer(page: number) {
