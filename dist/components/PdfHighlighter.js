@@ -134,10 +134,13 @@ export class PdfHighlighter extends PureComponent {
     componentWillUnmount() {
         this.unmounted = true;
         this.unsubscribe();
-        // Confido fork: detach before PdfLoader destroys the document, or the
-        // viewer's pending page fetches hit a destroyed worker transport.
-        // @ts-expect-error pdf.js accepts null to detach; its types say otherwise.
-        this.viewer?.setDocument(null);
+        // Confido fork: mark the viewer detached so pdf.js's own document check
+        // stops its page-fetch loop before PdfLoader destroys the document.
+        // Not setDocument(null): that empties the page list under fetches
+        // already in flight, which then throw on the missing page views.
+        if (this.viewer) {
+            this.viewer.pdfDocument = undefined;
+        }
     }
     findOrCreateHighlightLayer(page) {
         // Confido fork: attach the highlight layer to the page div rather than
